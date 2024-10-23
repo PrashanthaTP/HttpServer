@@ -8,7 +8,7 @@
 #define ERR_SOCKET_CREATE 0
 #define ERR_SOCKET_BIND -1
 #define ERR_SOCKET_LISTEN -1
-
+#define BUF_READ_SIZE 1024
 int exit_with_msg(std::string msg) {
   perror(msg.c_str());
   exit(EXIT_FAILURE);
@@ -77,9 +77,32 @@ int main() {
       exit_with_msg("Error while accepting connection");
     }
     std::cout << "connection accepted\n";
-    char buffer[30000] = {0};
-    read(conn_fd, buffer, 30000);
+    char buffer[BUF_READ_SIZE] = {0};
+    int bytes_read = recv(conn_fd, buffer, BUF_READ_SIZE, 0);
+    if (bytes_read < 0) {
+      perror("Failed to read from socket");
+      close(conn_fd);
+      continue;
+    }
     std::cout << "Recieved request : " << buffer << "\n";
+
+    // extract method and path
+    /*
+    GET / HTTP/1.1
+    Host: localhost:8080
+    User-Agent: curl/8.9.0
+    Accept: 
+    */
+    std::string request(buffer);
+    size_t method_end = request.find(' ');
+    std::string method = request.substr(0, method_end);
+
+    size_t path_start = method_end + 1;
+    size_t path_end = request.find(' ', path_start);
+    std::string path = request.substr(path_start, path_end - path_start);
+
+    std::cout << "Method : " << method << " | Path : " << path << "\n";
+
     const char* response =
         "HTTP/1.1 200 OK\nContent-Type:text /plain\nContent -Length : "
         "12\n\nHello World\n";
