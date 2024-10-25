@@ -103,10 +103,27 @@ int main() {
 
     std::cout << "Method : " << method << " | Path : " << path << "\n";
 
-    const char* response =
-        "HTTP/1.1 200 OK\nContent-Type:text /plain\nContent -Length : "
-        "12\n\nHello World\n";
-    send(conn_fd, response, strlen(response), 0);
+    if (method == "GET") {
+      if (path == "/") {
+        path = "/index.html";
+      }
+      FILE* file = fopen(path.c_str() + 1, "r");
+      if (file == NULL) {
+        std::string not_found_response =
+            "HTTP/1.1 404 Not Found\r\n"
+            "Content-Type: text/html\r\n"
+            "Content-Length: 28\r\n"
+            "\r\n"
+            "<h1>404 Page Not Found</h1>";
+        send(conn_fd, not_found_response.c_str(), not_found_response.size(), 0);
+      }
+    } else {
+      const char* response =
+          "HTTP/1.1 200 OK\nContent-Type:text /plain\nContent -Length : "
+          "12\n\nHello World\n";
+      send(conn_fd, response, strlen(response), 0);
+    }
+
     close(conn_fd);
   }
 
