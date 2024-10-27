@@ -101,13 +101,14 @@ int main() {
     size_t path_end = request.find(' ', path_start);
     std::string path = request.substr(path_start, path_end - path_start);
 
-    std::cout << "Method : " << method << " | Path : " << path << "\n";
-
     if (method == "GET") {
       if (path == "/") {
-        path = "/index.html";
+        path = "pages/index.html";
+      } else {
+        path = "pages" + path;
       }
-      FILE* file = fopen(path.c_str() + 1, "r");
+      std::cout << "Method : " << method << " | Path : " << path << "\n";
+      FILE* file = fopen(path.c_str(), "r");//no need to do c_str() + 1 as leading '/' removed
       if (file == NULL) {
         std::string not_found_response =
             "HTTP/1.1 404 Not Found\r\n"
@@ -116,6 +117,26 @@ int main() {
             "\r\n"
             "<h1>404 Page Not Found</h1>";
         send(conn_fd, not_found_response.c_str(), not_found_response.size(), 0);
+      } else {
+        //file exists
+        fseek(file, 0, SEEK_END);  //steam *, offset, origin
+        size_t file_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+
+        char* file_content = new char[file_size];
+        fread(file_content, sizeof(char), file_size, file);
+
+        std::string response_headers =
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: text/html\r\n"
+            "Content-Length: " +
+            std::to_string(file_size) +
+            "\r\n"
+            "\r\n";
+        send(conn_fd, response_headers.c_str(), response_headers.size(), 0);
+        send(conn_fd, file_content, file_size, 0);
+        fclose(file);
+        delete[] file_content;
       }
     } else {
       const char* response =
