@@ -37,6 +37,37 @@ void print_server_start_msg() {
   std::cout << "Server listening\n";
 }
 
+void send404(int conn_fd) {
+  std::string not_found_response =
+      "HTTP/1.1 404 Not Found\r\n"
+      "Content-Type: text/html\r\n"
+      "Content-Length: 28\r\n"
+      "\r\n"
+      "<h1>404 Page Not Found</h1>";
+  send(conn_fd, not_found_response.c_str(), not_found_response.size(), 0);
+}
+
+void sendFile(int conn_fd, FILE* file) {
+  fseek(file, 0, SEEK_END);  //steam *, offset, origin
+  size_t file_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  char* file_content = new char[file_size];
+  fread(file_content, sizeof(char), file_size, file);
+
+  std::string response_headers =
+      "HTTP/1.1 200 OK\r\n"
+      "Content-Type: text/html\r\n"
+      "Content-Length: " +
+      std::to_string(file_size) +
+      "\r\n"
+      "\r\n";
+  send(conn_fd, response_headers.c_str(), response_headers.size(), 0);
+  send(conn_fd, file_content, file_size, 0);
+  fclose(file);
+  delete[] file_content;
+}
+
 int main() {
   struct addrinfo hints;
   struct addrinfo* server_info;
@@ -108,35 +139,15 @@ int main() {
         path = "pages" + path;
       }
       std::cout << "Method : " << method << " | Path : " << path << "\n";
-      FILE* file = fopen(path.c_str(), "r");//no need to do c_str() + 1 as leading '/' removed
+
+      //no need to do c_str() + 1 as leading '/' removed
+      FILE* file = fopen(path.c_str(), "r");
+
       if (file == NULL) {
-        std::string not_found_response =
-            "HTTP/1.1 404 Not Found\r\n"
-            "Content-Type: text/html\r\n"
-            "Content-Length: 28\r\n"
-            "\r\n"
-            "<h1>404 Page Not Found</h1>";
-        send(conn_fd, not_found_response.c_str(), not_found_response.size(), 0);
+        send404(conn_fd);
       } else {
         //file exists
-        fseek(file, 0, SEEK_END);  //steam *, offset, origin
-        size_t file_size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-
-        char* file_content = new char[file_size];
-        fread(file_content, sizeof(char), file_size, file);
-
-        std::string response_headers =
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/html\r\n"
-            "Content-Length: " +
-            std::to_string(file_size) +
-            "\r\n"
-            "\r\n";
-        send(conn_fd, response_headers.c_str(), response_headers.size(), 0);
-        send(conn_fd, file_content, file_size, 0);
-        fclose(file);
-        delete[] file_content;
+        sendFile(conn_fd, file);
       }
     } else {
       const char* response =
