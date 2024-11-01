@@ -115,7 +115,7 @@ int main() {
       close(conn_fd);
       continue;
     }
-    std::cout << "Recieved request : " << buffer << "\n";
+    //std::cout << "Recieved request : " << buffer << "\n";
 
     // extract method and path
     /*
@@ -149,13 +149,23 @@ int main() {
         //file exists
         sendFile(conn_fd, file);
       }
+    } else if (method == "POST") {
+      std::string body = request.substr(request.find("\r\n\r\n") + 4);
+      std::string response =
+          "HTTP/1.1 200 OK\r\n"
+          "Content-Type: text/plain\r\n"
+          "Content-Length: " +
+          std::to_string(body.size() + 2) +
+          "\r\n"
+          "\r\n" +
+          body + "\r\n";
+      send(conn_fd, response.c_str(), response.size(), 0);
     } else {
       const char* response =
           "HTTP/1.1 200 OK\nContent-Type:text /plain\nContent -Length : "
           "12\n\nHello World\n";
       send(conn_fd, response, strlen(response), 0);
     }
-
     close(conn_fd);
   }
 
