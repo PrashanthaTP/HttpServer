@@ -11,3 +11,9 @@
 ## Cpp
 
 + [Malloc vs New for Primitives](https://stackoverflow.com/questions/44588345/malloc-vs-new-for-primitives)
+
+##  Multithreading
+
++ [Stackoverflow: What exactly is std::atomic](https://stackoverflow.com/questions/31978324/what-exactly-is-stdatomic)
++ [Stackoverflow: lock vs try lock sleep repeat performance](https://stackoverflow.com/questions/33046900/lock-vs-try-lock-sleep-repeat-performance)
+   -  [Wikipedia: Spinlock](https://en.wikipedia.org/wiki/Spinlock)
