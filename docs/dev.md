@@ -5,15 +5,24 @@
 * Header for `struct addrinfo` : `netdb.h`
   - Hint : [Github issue: Incomplete type error on struct addrinfo #2025](https://github.com/Microsoft/vscode-cpptools/issues/2025)
 * Writing http response : [Writing proper HTTP response to plain / naked socket connection#1261](https://github.com/nodejs/help/issues/1261)
-* discussion about bind: [socket bind always returns 0, why?](https://www.thecodingforums.com/threads/socket-bind-always-returns-0-why.971444/)
+* Discussion about bind: [socket bind always returns 0, why?](https://www.thecodingforums.com/threads/socket-bind-always-returns-0-why.971444/)
 
 
 ## Cpp
 
++ [Modern C++ Features](https://github.com/AnthonyCalandra/modern-cpp-features?)
 + [Malloc vs New for Primitives](https://stackoverflow.com/questions/44588345/malloc-vs-new-for-primitives)
-
++ Fascinating
+  - [Placement new:  new(&x)A();](https://stackoverflow.com/a/56896234/12988588)
 ##  Multithreading
 
 + [Stackoverflow: What exactly is std::atomic](https://stackoverflow.com/questions/31978324/what-exactly-is-stdatomic)
 + [Stackoverflow: lock vs try lock sleep repeat performance](https://stackoverflow.com/questions/33046900/lock-vs-try-lock-sleep-repeat-performance)
    -  [Wikipedia: Spinlock](https://en.wikipedia.org/wiki/Spinlock)
+
+## Reference Projects
+
++ [Blog by Trung Vuong Thien: A simple HTTP server from scratch](https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/)
+  - [Github: trungams/http-server](https://github.com/trungams/http-server/blob/master/src/main.cc)
+  - [Linux Docs: epoll](https://man7.org/linux/man-pages/man7/epoll.7.html)
+
