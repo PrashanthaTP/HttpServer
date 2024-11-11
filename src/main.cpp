@@ -6,8 +6,13 @@
 
 #include <mutex>
 #include <thread>
+
+#include "server.hpp"
+
 using std::mutex;
 using std::thread;
+
+using SimpleHttpServer::HttpServer;
 
 #define PORT_STR "8080"
 #define ERR_SOCKET_CREATE 0
@@ -145,34 +150,7 @@ void sendFile(int conn_fd, FILE* file) {
 }
 
 int main() {
-    struct addrinfo hints;
-    struct addrinfo* server_info;
-    int socket_fd, conn_fd;
-
-    memset(&hints, 0, sizeof(hints));
-
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;  // use IP of the program host
-
-    if (getaddrinfo(NULL, "8080", &hints, &server_info) != 0) {
-        exit_with_msg("Error during getting address");
-    }
-    socket_fd = socket(server_info->ai_family, server_info->ai_socktype,
-                       server_info->ai_protocol);
-    if (socket_fd == ERR_SOCKET_CREATE) {
-        exit_with_msg("Error during socket creation");
-    }
-    int sockopt = 1;
-    setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &sockopt,
-               sizeof(sockopt));
-
-    if (bind(socket_fd, server_info->ai_addr, server_info->ai_addrlen) < 0) {
-        exit_with_msg("Error during binding socket");
-    }
-    print_server_info(server_info);
-
-    freeaddrinfo(server_info);
+    HttpServer server("8080");
 
     if (listen(socket_fd, 10) <= ERR_SOCKET_LISTEN) {
         exit_with_msg("Error during listening");
