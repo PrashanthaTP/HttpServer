@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
-using std::string;
 
-void exitWithMsg(const string& msg);
+
+void exit_with_msg(const std::string& msg);
+void log_msg(const std::string& msg);
+void log_err(const std::string& msg);

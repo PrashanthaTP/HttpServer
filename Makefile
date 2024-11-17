@@ -1,4 +1,4 @@
 .PHONY: clean
 
-build/server: src/main.cpp
-	g++ -o build/main src/main.cpp
+build/server: src/main.cpp src/server.cpp src/utils.cpp
+	g++ -o build/main $?

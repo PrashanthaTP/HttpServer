@@ -151,20 +151,21 @@ void sendFile(int conn_fd, FILE* file) {
 
 int main() {
     HttpServer server("8080");
-
-    if (listen(socket_fd, 10) <= ERR_SOCKET_LISTEN) {
-        exit_with_msg("Error during listening");
-    }
+    try{
+    server.start();
     print_server_start_msg();
 
-    while (true) {
-        if ((conn_fd = accept(socket_fd, nullptr, nullptr)) < 0) {
-            exit_with_msg("Error while accepting connection");
-        }
-        std::cout << "connection accepted\n";
-        thread client_thread(handleClient, conn_fd);
-        client_thread.detach();
-    }
+    // while (true) {
+    //     if ((conn_fd = accept(socket_fd, nullptr, nullptr)) < 0) {
+    //         exit_with_msg("Error while accepting connection");
+    //     }
+    //     std::cout << "connection accepted\n";
+    //     thread client_thread(handleClient, conn_fd);
+    //     client_thread.detach();
+    // }
+    // close(socket_fd);
 
-    close(socket_fd);
+    }catch(const std::exception& e){
+        std::cout << "Exception occured : " << e.what() << "\n";
+    }
 }

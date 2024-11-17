@@ -7,6 +7,7 @@
 * Writing http response : [Writing proper HTTP response to plain / naked socket connection#1261](https://github.com/nodejs/help/issues/1261)
 * Discussion about bind: [socket bind always returns 0, why?](https://www.thecodingforums.com/threads/socket-bind-always-returns-0-why.971444/)
 
+* [libevent: API -> Mechanism to handle callbacks when specific event happens on a file descriptor](https://libevent.org/libevent-book/Ref10_http_server.html)
 
 ## Cpp
 
@@ -14,6 +15,8 @@
 + [Malloc vs New for Primitives](https://stackoverflow.com/questions/44588345/malloc-vs-new-for-primitives)
 + Fascinating
   - [Placement new:  new(&x)A();](https://stackoverflow.com/a/56896234/12988588)
+  - [Object Slicing Mentioned here - Stackoverflow - how-to-throw-a-c-exception ](https://stackoverflow.com/a/52402941)
+
 ##  Multithreading
 
 + [Stackoverflow: What exactly is std::atomic](https://stackoverflow.com/questions/31978324/what-exactly-is-stdatomic)
@@ -26,3 +29,6 @@
   - [Github: trungams/http-server](https://github.com/trungams/http-server/blob/master/src/main.cc)
   - [Linux Docs: epoll](https://man7.org/linux/man-pages/man7/epoll.7.html)
 
+## C++ Style Guide
+
++ [lefticus.gitbooks.io/cpp-best-practices](https://lefticus.gitbooks.io/cpp-best-practices/content/03-Style.html)
