@@ -48,10 +48,9 @@ void HttpServer::createSocket() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;  // use IP of the program host
 
-    if (getaddrinfo(NULL, 
-                    m_port_str.c_str(), 
-                    &hints, 
-                    &m_server_addrinfo_p) != 0) {
+    int stat =
+        getaddrinfo(NULL, m_port_str.c_str(), &hints, &m_server_addrinfo_p);
+    if (stat != 0) {
         exit_with_msg("Error during getting address");
     }
     m_server_fd =
@@ -70,14 +69,14 @@ void HttpServer::acceptConnections() {
     //multithreading -> handle clients
     while (1) {
         int client_fd;
-        client_fd = accept(m_server_fd, 
-                           (struct sockaddr*)&client_addr,
+        client_fd = accept(m_server_fd, (struct sockaddr*)&client_addr,
                            &client_addr_size);
         if (client_fd < 1) {
             log_err("Error while accepting client connection");
             continue;
         }
         handleClient(client_fd);
+        close(client_fd);
     }
 }
 
@@ -89,9 +88,12 @@ void HttpServer::handleClient(int client_fd) {
         //?
         log_msg("Error while receiving Client msg");
         return;
+    } else if (bytesReceived == 0) {
+        log_msg("Client has closed the connection");
+        return;
     }
     cout << buffer << "\n";
     cout << "================\n";
-    close(client_fd);
+    //close(client_fd);
 }
 }  // namespace SimpleHttpServer
