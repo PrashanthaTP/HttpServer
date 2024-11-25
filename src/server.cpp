@@ -5,6 +5,7 @@
 #include <iostream>  //cout
 #include <thread>
 
+#include "http_message.hpp"
 #include "server.hpp"
 #include "utils.hpp"
 
@@ -47,7 +48,10 @@ void HttpServer::createSocket() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;  // use IP of the program host
 
-    if (getaddrinfo(NULL, m_port_str.c_str(), &hints, &m_server_addrinfo_p) != 0) {
+    if (getaddrinfo(NULL, 
+                    m_port_str.c_str(), 
+                    &hints, 
+                    &m_server_addrinfo_p) != 0) {
         exit_with_msg("Error during getting address");
     }
     m_server_fd =
@@ -66,23 +70,28 @@ void HttpServer::acceptConnections() {
     //multithreading -> handle clients
     while (1) {
         int client_fd;
-        client_fd =
-            accept(m_server_fd, (struct sockaddr*)&client_addr, &client_addr_size);
+        client_fd = accept(m_server_fd, 
+                           (struct sockaddr*)&client_addr,
+                           &client_addr_size);
         if (client_fd < 1) {
             log_err("Error while accepting client connection");
             continue;
         }
-        char buffer[1024];
-        int bytesReceived = recv(client_fd, buffer, sizeof(buffer), 0);
-        // if (bytesReceived <= 0) {
-        if (bytesReceived < 0) {
-            //?
-            log_msg("Error while receiving Client msg");
-            break;
-        }
-        cout << buffer << "\n";
-        cout << "================\n";
-        close(client_fd);
+        handleClient(client_fd);
     }
+}
+
+void HttpServer::handleClient(int client_fd) {
+    char buffer[1024];
+    int bytesReceived = recv(client_fd, buffer, sizeof(buffer), 0);
+    // if (bytesReceived <= 0) {
+    if (bytesReceived < 0) {
+        //?
+        log_msg("Error while receiving Client msg");
+        return;
+    }
+    cout << buffer << "\n";
+    cout << "================\n";
+    close(client_fd);
 }
 }  // namespace SimpleHttpServer

@@ -5,3 +5,8 @@
 + File Caching
 + Logging 
 + Bencmarking
+
+
+## Refactoring
+
+-> Consistent naming : snake_case?/ camelCase? / cCamelCase?

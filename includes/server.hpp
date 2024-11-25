@@ -5,6 +5,7 @@
 namespace SimpleHttpServer {
 class HttpServer {
    public:
+    //TODO: delete certain constructors
     //TODO: use move op for port string initialization
     HttpServer(const std::string& t_port_str);
     ~HttpServer();
@@ -17,5 +18,6 @@ class HttpServer {
     bool m_is_running = false;
     void createSocket();
     void acceptConnections();
+    void handleClient(int client_fd);
 };
 }  // namespace SimpleHttpServer
