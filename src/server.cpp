@@ -36,6 +36,8 @@ void HttpServer::start() {
     freeaddrinfo(m_server_addrinfo_p);
     if (listen(m_server_fd, 10) < 0) {
         exit_with_msg("Error during listening");
+    }else{
+        cout << "Server started listening..\n";
     }
     acceptConnections();
 }
@@ -79,21 +81,39 @@ void HttpServer::acceptConnections() {
         close(client_fd);
     }
 }
+int checkReceiveError(int bytes_received) {
+    if (bytes_received < 0) {
+        //?
+        log_msg("Error while receiving Client msg");
+        return -1;
+    } else if (bytes_received == 0) {
+        log_msg("Client has closed the connection");
+        return -1;
+    } else {
+    }
+    return 0;
+}
 
 void HttpServer::handleClient(int client_fd) {
     char buffer[1024];
-    int bytesReceived = recv(client_fd, buffer, sizeof(buffer), 0);
+    int bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
     // if (bytesReceived <= 0) {
-    if (bytesReceived < 0) {
-        //?
-        log_msg("Error while receiving Client msg");
-        return;
-    } else if (bytesReceived == 0) {
-        log_msg("Client has closed the connection");
+    if (checkReceiveError(bytes_received) < 0) {
         return;
     }
+    cout << "Incoming request : \n";
     cout << buffer << "\n";
-    cout << "================\n";
+    cout << "--------------------\n";
+    Response response;
+    response.setStatusCode(HttpStatusCode::Ok);
+    response.setHeader("Content-Type", "text/html");
+    response.setContent("<h1>Hello World</h1>\r\n");
+    response.parse();
+    send(client_fd, response.str().c_str(), response.size(), 0);
+    cout << response.str() << "\n";
+    cout << "Response sent\n";
+    cout << "--------------------\n";
     //close(client_fd);
 }
+
 }  // namespace SimpleHttpServer

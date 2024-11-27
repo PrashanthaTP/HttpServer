@@ -153,7 +153,6 @@ int main() {
     HttpServer server("8080");
     try{
     server.start();
-    print_server_start_msg();
 
     // while (true) {
     //     if ((conn_fd = accept(socket_fd, nullptr, nullptr)) < 0) {
