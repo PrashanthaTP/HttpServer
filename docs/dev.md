@@ -22,6 +22,7 @@
 + [Stackoverflow: What exactly is std::atomic](https://stackoverflow.com/questions/31978324/what-exactly-is-stdatomic)
 + [Stackoverflow: lock vs try lock sleep repeat performance](https://stackoverflow.com/questions/33046900/lock-vs-try-lock-sleep-repeat-performance)
    -  [Wikipedia: Spinlock](https://en.wikipedia.org/wiki/Spinlock)
++ [Reddit: Creating thread inside a class method](https://www.reddit.com/r/learnprogramming/comments/qfuxe6/c_using_threads_within_a_class_method/)
 
 ## Reference Projects
 
@@ -32,3 +33,7 @@
 ## C++ Style Guide
 
 + [lefticus.gitbooks.io/cpp-best-practices](https://lefticus.gitbooks.io/cpp-best-practices/content/03-Style.html)
+
+## General
+
++ [Stackoverflow: Running curl command in parallel](https://stackoverflow.com/questions/46362284/run-multiple-curl-commands-in-parallel)

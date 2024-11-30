@@ -63,6 +63,7 @@ void HttpServer::createSocket() {
     }
 }
 
+// int countThread = 0;
 void HttpServer::acceptConnections() {
     //client addr storage
     struct sockaddr_storage client_addr;
@@ -77,8 +78,8 @@ void HttpServer::acceptConnections() {
             log_err("Error while accepting client connection");
             continue;
         }
-        handleClient(client_fd);
-        close(client_fd);
+        std::thread client_thread(&HttpServer::handleClient,this,client_fd);
+        client_thread.detach();
     }
 }
 int checkReceiveError(int bytes_received) {
@@ -95,10 +96,13 @@ int checkReceiveError(int bytes_received) {
 }
 
 void HttpServer::handleClient(int client_fd) {
+    // countThread++;
+    // cout << "Thread: " << countThread << "\n";
     char buffer[1024];
     int bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
     // if (bytesReceived <= 0) {
     if (checkReceiveError(bytes_received) < 0) {
+        close(client_fd);
         return;
     }
     cout << "Incoming request : \n";
@@ -108,7 +112,12 @@ void HttpServer::handleClient(int client_fd) {
     response.setStatusCode(HttpStatusCode::Ok);
     response.setHeader("Content-Type", "text/html");
     response.setContent("<h1>Hello World</h1>\r\n");
+    // response.setContent("<h1>Hello World " + std::to_string(countThread) + "</h1>\r\n");
     response.parse();
+    //what if `send` doesn't send the whole buffer?
+    //what to be done on partial transfer?
+    //anyway for current use case it almost always sends the whole message
+    //considering the message size
     send(client_fd, response.str().c_str(), response.size(), 0);
     cout << response.str() << "\n";
     cout << "Response sent\n";

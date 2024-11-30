@@ -153,17 +153,6 @@ int main() {
     HttpServer server("8080");
     try{
     server.start();
-
-    // while (true) {
-    //     if ((conn_fd = accept(socket_fd, nullptr, nullptr)) < 0) {
-    //         exit_with_msg("Error while accepting connection");
-    //     }
-    //     std::cout << "connection accepted\n";
-    //     thread client_thread(handleClient, conn_fd);
-    //     client_thread.detach();
-    // }
-    // close(socket_fd);
-
     }catch(const std::exception& e){
         std::cout << "Exception occured : " << e.what() << "\n";
     }
