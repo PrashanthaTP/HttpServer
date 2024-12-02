@@ -1,6 +1,6 @@
 #pragma once
 
-class Handler{};
+class Handler {};
 class Logger {
     Logger();
     ~Logger();

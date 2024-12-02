@@ -1,5 +1,5 @@
-#include <sstream>
 #include "http_message.hpp"
+#include <sstream>
 // Request and Response
 #include "utils.hpp"
 
@@ -12,7 +12,7 @@ std::string Request::getHeader(std::string& key) const {
     return std::string();
 }
 
-void Request::parse(){
+void Request::parse() {
     std::istringstream request_stream{m_buffer};
     std::string http_method, path, http_version;
     request_stream >> http_method >> path >> http_version;

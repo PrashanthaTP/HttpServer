@@ -151,9 +151,9 @@ void sendFile(int conn_fd, FILE* file) {
 
 int main() {
     HttpServer server("8080");
-    try{
-    server.start();
-    }catch(const std::exception& e){
+    try {
+        server.start();
+    } catch (const std::exception& e) {
         std::cout << "Exception occured : " << e.what() << "\n";
     }
 }

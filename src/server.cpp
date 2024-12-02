@@ -36,7 +36,7 @@ void HttpServer::start() {
     freeaddrinfo(m_server_addrinfo_p);
     if (listen(m_server_fd, 10) < 0) {
         exit_with_msg("Error during listening");
-    }else{
+    } else {
         cout << "Server started listening..\n";
     }
     acceptConnections();
@@ -78,7 +78,7 @@ void HttpServer::acceptConnections() {
             log_err("Error while accepting client connection");
             continue;
         }
-        std::thread client_thread(&HttpServer::handleClient,this,client_fd);
+        std::thread client_thread(&HttpServer::handleClient, this, client_fd);
         client_thread.detach();
     }
 }
@@ -99,7 +99,8 @@ void HttpServer::handleClient(int client_fd) {
     // countThread++;
     // cout << "Thread: " << countThread << "\n";
     Request request;
-    int bytes_received = recv(client_fd, request.m_buffer, sizeof(request.m_buffer), 0);
+    int bytes_received =
+        recv(client_fd, request.m_buffer, sizeof(request.m_buffer), 0);
     // if (bytesReceived <= 0) {
     if (checkReceiveError(bytes_received) < 0) {
         close(client_fd);
