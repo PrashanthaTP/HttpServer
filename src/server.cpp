@@ -98,16 +98,17 @@ int checkReceiveError(int bytes_received) {
 void HttpServer::handleClient(int client_fd) {
     // countThread++;
     // cout << "Thread: " << countThread << "\n";
-    char buffer[1024];
-    int bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
+    Request request;
+    int bytes_received = recv(client_fd, request.m_buffer, sizeof(request.m_buffer), 0);
     // if (bytesReceived <= 0) {
     if (checkReceiveError(bytes_received) < 0) {
         close(client_fd);
         return;
     }
     cout << "Incoming request : \n";
-    cout << buffer << "\n";
+    cout << request.m_buffer << "\n";
     cout << "--------------------\n";
+    request.parse();
     Response response;
     response.setStatusCode(HttpStatusCode::Ok);
     response.setHeader("Content-Type", "text/html");

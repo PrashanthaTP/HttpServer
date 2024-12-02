@@ -1,15 +1,33 @@
-#include "http_message.hpp"
 #include <sstream>
+#include "http_message.hpp"
 // Request and Response
+#include "utils.hpp"
 
 namespace SimpleHttpServer {
 Request::Request() : m_http_method(HttpMethod::GET) {}
-std::string Request::header(std::string& key) const {
+std::string Request::getHeader(std::string& key) const {
     if (m_headers_umap.count(key) > 1) {
         return m_headers_umap.at(key);
     }
     return std::string();
 }
+
+void Request::parse(){
+    std::istringstream request_stream{m_buffer};
+    std::string http_method, path, http_version;
+    request_stream >> http_method >> path >> http_version;
+    log_msg("Request :\n");
+    log_msg("Method: ");
+    log_msg(http_method);
+    log_msg("\n");
+    log_msg("Path: ");
+    log_msg(path);
+    log_msg("\n");
+    log_msg("Version: ");
+    log_msg(http_version);
+    log_msg("\n");
+}
+
 std::string to_string(HttpVersion http_version) {
     switch (http_version) {
         case HttpVersion::HTTP_1_1:
@@ -42,7 +60,7 @@ void Response::parse() {
     std::ostringstream oss;
     oss << to_string(m_http_version) << " ";
     oss << to_int(m_status_code) << " ";
-    oss << g_HttpStatusMessage.at(to_int(m_status_code)) << "\r\n";
+    oss << g_HttpStatusMessageMap.at(to_int(m_status_code)) << "\r\n";
     for (const auto& kv : m_header_umap) {
         oss << kv.first << ": " << kv.second << "\r\n";
     }

@@ -10,7 +10,7 @@ void exit_with_msg(const string& t_msg) {
 }
 
 void log_msg(const string& t_msg) {
-    cout << t_msg << "\n";
+    cout << t_msg;
 }
 
 void log_err(const string& t_msg) {
