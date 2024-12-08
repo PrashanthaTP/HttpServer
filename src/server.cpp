@@ -89,10 +89,34 @@ void HttpServer::acceptConnections() {}
 
 void HttpServer::handleConnections() {}
 
-void HttpServer::stop() {
+void HttpServer::closeSocket() {
     if (m_server_fd < 0) {
+        // m_server_fd is not holding valid file descriptor
+        return;
+    } else {
         close(m_server_fd);
     }
+}
+void HttpServer::closeEpoll() {
+    for (int i = 0; i < g_thread_poolsize; i++) {
+        if (m_epoll_fds[i] < 0) {
+            continue;
+        }
+        close(m_epoll_fds[i]);
+    }
+}
+
+void HttpServer::joinThreads() {
+    m_listener_thread.join();
+    for (int i = 0; i < g_thread_poolsize; i++) {
+        m_worker_threads[i].join();
+    }
+}
+
+void HttpServer::stop() {
+    closeSocket();
+    closeEpoll();
+    joinThreads();
     m_is_stopped = true;
 }
 
