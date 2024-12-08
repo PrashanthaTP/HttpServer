@@ -37,3 +37,8 @@
 ## General
 
 + [Stackoverflow: Running curl command in parallel](https://stackoverflow.com/questions/46362284/run-multiple-curl-commands-in-parallel)
+
+
+## Web Servers
+
++ [c10k Problem](http://www.kegel.com/c10k.html#strategies)
