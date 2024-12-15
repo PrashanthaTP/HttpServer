@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include <chrono>
 #include <mutex>
 #include <thread>
 
@@ -153,6 +154,14 @@ int main() {
     HttpServer server("8080");
     try {
         server.start();
+        std::cout << "Enter [quit] to stop the server" << std::endl;
+        std::string command;
+        std::cin >> command;
+        while (command != "quit") {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cin >> command;
+        }
+        //server.stop();
     } catch (const std::exception& e) {
         std::cout << "Exception occured : " << e.what() << "\n";
     }

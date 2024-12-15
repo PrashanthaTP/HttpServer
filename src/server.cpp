@@ -66,9 +66,9 @@ void HttpServer::start() {
         cout << "Server started listening..\n";
     }
     // acceptConnections();
+    m_is_running = true;
     setupEpoll();
     setupThreads();
-    m_is_running = true;
 }
 
 void HttpServer::setupEpoll() {
