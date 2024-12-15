@@ -161,7 +161,7 @@ int main() {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             std::cin >> command;
         }
-        //server.stop();
+        server.stop();
     } catch (const std::exception& e) {
         std::cout << "Exception occured : " << e.what() << "\n";
     }

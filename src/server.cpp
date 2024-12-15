@@ -135,9 +135,9 @@ void HttpServer::handleConnections(int worker_idx) {
             if (curr_ev->events & EPOLLERR || curr_ev->events & EPOLLHUP) {
                 //TODO: Should this block be moved to seperate function?
                 updateEpoll(m_epoll_fds[worker_idx], EPOLL_CTL_DEL,
-                            curr_ev->data.fd, 0, nullptr);
+                            ev_data->fd, 0, nullptr);
                 delete ev_data;
-                close(curr_ev->data.fd);
+                close(ev_data->fd);
             } else if (curr_ev->events & EPOLLIN) {
                 handleEpollIn(m_epoll_fds[worker_idx], curr_ev);
             } else if (curr_ev->events & EPOLLOUT) {
@@ -154,28 +154,28 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
     ssize_t n_bytes = recv(request->fd, request->buffer, g_max_buffer_size, 0);
     if (n_bytes > 0) {
         response = new EventData();
-        response->fd = ev->data.fd;
+        response->fd = request->fd;
         createResponse(request, response);
         updateEpoll(epoll_fd, EPOLL_CTL_MOD, request->fd, EPOLLOUT, response);
         delete request;
     } else if (n_bytes == 0) {
         //client closed the connection
         log_msg("EPOLL_CTL_DEL 1: " + std::to_string(ev->data.fd) + "\n");
-        updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
+        updateEpoll(epoll_fd, EPOLL_CTL_DEL, request->fd, 0, nullptr);
+        close(request->fd);
         delete request;
-        close(ev->data.fd);
     } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
         //resource busy or no data
         //try again
         //update epoll interest list with new data for 'fd'
-        updateEpoll(epoll_fd, EPOLL_CTL_MOD, ev->data.fd, EPOLLIN, request);
+        updateEpoll(epoll_fd, EPOLL_CTL_MOD, request->fd, EPOLLIN, request);
     } else {
         //unexpected error n_bytes<0
         perror("Unknown error in recv");
         log_msg("EPOLL_CTL_DEL 2: " + std::to_string(ev->data.fd) + "\n");
-        updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
+        updateEpoll(epoll_fd, EPOLL_CTL_DEL, request->fd, 0, nullptr);
+        close(request->fd);
         delete request;
-        close(ev->data.fd);
     }
 }
 
@@ -192,7 +192,7 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
         body + "\r\n";
     //ssize_t send(int s, const void* buf, size_t len, int flags);
     ssize_t n_bytes =
-        send(ev->data.fd, response_str.c_str(), response_str.size(), 0);
+        send(response->fd, response_str.c_str(), response_str.size(), 0);
     if (n_bytes < 0) {
         log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
         log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
@@ -201,9 +201,9 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     }
 
     log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
-    updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
+    updateEpoll(epoll_fd, EPOLL_CTL_DEL, response->fd, 0, nullptr);
+    close(response->fd);
     delete response;
-    close(ev->data.fd);
 }
 
 void HttpServer::updateEpoll(int epoll_fd, int op, int fd,
@@ -213,7 +213,7 @@ void HttpServer::updateEpoll(int epoll_fd, int op, int fd,
         case EPOLL_CTL_MOD:
             struct epoll_event event;
             event.events = event_bitmask;
-            event.data.fd = fd;
+            //event.data.fd = fd;//event.data is a union
             event.data.ptr = data;
             if (epoll_ctl(epoll_fd, op, fd, &event) < 0) {
                 perror("Error updating interest list");
