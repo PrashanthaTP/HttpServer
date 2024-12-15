@@ -40,7 +40,7 @@ void HttpServer::createSocket() {
         exit_with_msg("Error during getting address");
     }
     m_server_fd =
-        socket(m_server_addrinfo_p->ai_family, m_server_addrinfo_p->ai_socktype,
+        socket(m_server_addrinfo_p->ai_family, m_server_addrinfo_p->ai_socktype | SOCK_NONBLOCK,
                m_server_addrinfo_p->ai_protocol);
     if (m_server_fd == -1) {
         exit_with_msg("Error during socket creation");
@@ -99,8 +99,8 @@ void HttpServer::acceptConnections() {
         log_msg("Accepting connections\n");
         //TODO: non blocking sockets?
         //https://stackoverflow.com/questions/26269448/why-is-non-blocking-sockets-recommended-in-epoll
-        int client_fd = accept(m_server_fd, (struct sockaddr*)&client_addr,
-                                &client_addr_size);
+        int client_fd = accept4(m_server_fd, (struct sockaddr*)&client_addr,
+                                &client_addr_size,SOCK_NONBLOCK);
         if (client_fd < 0) {
             continue;
         }
@@ -120,7 +120,7 @@ void HttpServer::handleConnections(int worker_idx) {
         log_msg("Epoll wait..\n");
         //https://stackoverflow.com/a/62967588/12988588
         int n_fds =
-            epoll_wait(m_epoll_fds[worker_idx], ev_list, g_max_events, -1);
+            epoll_wait(m_epoll_fds[worker_idx], ev_list, g_max_events, 0);
         if (n_fds <= 0) {
             continue;
         }
