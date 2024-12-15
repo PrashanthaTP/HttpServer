@@ -102,8 +102,8 @@ void HttpServer::acceptConnections() {
         //add to interest list of one of the epoll fds
         EventData* event_data = new EventData;
         event_data->fd = client_fd;
-        updateEpoll(m_curr_worker_idx, EPOLL_CTL_ADD, client_fd, EPOLLIN,
-                    event_data);
+        updateEpoll(m_epoll_fds[m_curr_worker_idx], EPOLL_CTL_ADD, client_fd,
+                    EPOLLIN, event_data);
         m_curr_worker_idx = (m_curr_worker_idx + 1) % g_thread_poolsize;
     }
 }
