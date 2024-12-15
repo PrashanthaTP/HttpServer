@@ -6,9 +6,12 @@
   - Hint : [Github issue: Incomplete type error on struct addrinfo #2025](https://github.com/Microsoft/vscode-cpptools/issues/2025)
 * Writing http response : [Writing proper HTTP response to plain / naked socket connection#1261](https://github.com/nodejs/help/issues/1261)
 * Discussion about bind: [socket bind always returns 0, why?](https://www.thecodingforums.com/threads/socket-bind-always-returns-0-why.971444/)
-
 * [libevent: API -> Mechanism to handle callbacks when specific event happens on a file descriptor](https://libevent.org/libevent-book/Ref10_http_server.html)
-
+* [IBM Article: EAGAIN, EWOULDBLOCK](https://www.ibm.com/support/pages/why-does-send-return-eagain-ewouldblock)
+* [Stackoverflow: Why is non-blocking sockets recommended in epoll](https://stackoverflow.com/questions/26269448/why-is-non-blocking-sockets-recommended-in-epoll)
+- Related 
+  1. [Section Level-triggered and edge-triggered in man7/epoll](https://man7.org/linux/man-pages/man7/epoll.7.html)
+  2. [Blocking I/O, Nonblocking I/O, And Epoll](https://eklitzke.org/blocking-io-nonblocking-io-and-epoll)
 ## Cpp
 
 + [Modern C++ Features](https://github.com/AnthonyCalandra/modern-cpp-features?)
@@ -16,6 +19,7 @@
 + Fascinating
   - [Placement new:  new(&x)A();](https://stackoverflow.com/a/56896234/12988588)
   - [Object Slicing Mentioned here - Stackoverflow - how-to-throw-a-c-exception ](https://stackoverflow.com/a/52402941)
++ [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-conventional)
 
 ##  Multithreading
 
