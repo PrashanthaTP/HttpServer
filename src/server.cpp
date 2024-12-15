@@ -78,6 +78,7 @@ void HttpServer::setupEpoll() {
             exit_with_msg("Error creating epoll fd");
         }
     }
+    log_msg("Setup Epoll FDs successfully\n");
 }
 
 void HttpServer::setupThreads() {
@@ -86,17 +87,21 @@ void HttpServer::setupThreads() {
         m_worker_threads[i] =
             std::thread(&HttpServer::handleConnections, this, i);
     }
+    log_msg("Threads started successfully\n");
 }
 
 void HttpServer::acceptConnections() {
+    log_msg("Inside acceptConnections\n");
+    log_msg("Value of m_is_running " + std::to_string(m_is_running));
     struct sockaddr_storage client_addr;
     socklen_t client_addr_size = sizeof(client_addr);
     while (m_is_running) {
+        log_msg("Accepting connections\n");
         //TODO: non blocking sockets?
         //https://stackoverflow.com/questions/26269448/why-is-non-blocking-sockets-recommended-in-epoll
         int client_fd = accept(m_server_fd, (struct sockaddr*)&client_addr,
-                               &client_addr_size);
-        if (client_fd < 1) {
+                                &client_addr_size);
+        if (client_fd < 0) {
             continue;
         }
         //add to interest list of one of the epoll fds
@@ -109,8 +114,10 @@ void HttpServer::acceptConnections() {
 }
 
 void HttpServer::handleConnections(int worker_idx) {
+    log_msg("Inside handleConnections\n");
     struct epoll_event ev_list[g_max_events];
     while (m_is_running) {
+        log_msg("Epoll wait..\n");
         //https://stackoverflow.com/a/62967588/12988588
         int n_fds =
             epoll_wait(m_epoll_fds[worker_idx], ev_list, g_max_events, -1);
@@ -123,7 +130,8 @@ void HttpServer::handleConnections(int worker_idx) {
         //be more than MAX_BUF bytes to read.
         for (int i = 0; i < n_fds; i++) {
             struct epoll_event* curr_ev = &ev_list[i];
-            struct EventData* ev_data = static_cast<EventData*>(curr_ev->data.ptr);
+            struct EventData* ev_data =
+                static_cast<EventData*>(curr_ev->data.ptr);
             if (curr_ev->events & EPOLLERR || curr_ev->events & EPOLLHUP) {
                 //TODO: Should this block be moved to seperate function?
                 updateEpoll(m_epoll_fds[worker_idx], EPOLL_CTL_DEL,
@@ -143,15 +151,16 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
     EventData* request = static_cast<EventData*>(ev->data.ptr);
     EventData* response;
     //ssize_t recv(int s, void *buf, size_t len, int flags);
-    ssize_t n_bytes = recv(ev->data.fd, request->buffer, g_max_buffer_size, 0);
+    ssize_t n_bytes = recv(request->fd, request->buffer, g_max_buffer_size, 0);
     if (n_bytes > 0) {
         response = new EventData();
         response->fd = ev->data.fd;
         createResponse(request, response);
+        updateEpoll(epoll_fd, EPOLL_CTL_MOD, request->fd, EPOLLOUT, response);
         delete request;
-        updateEpoll(epoll_fd, EPOLL_CTL_MOD, ev->data.fd, EPOLLOUT, response);
     } else if (n_bytes == 0) {
         //client closed the connection
+        log_msg("EPOLL_CTL_DEL 1: " + std::to_string(ev->data.fd) + "\n");
         updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
         delete request;
         close(ev->data.fd);
@@ -162,6 +171,8 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
         updateEpoll(epoll_fd, EPOLL_CTL_MOD, ev->data.fd, EPOLLIN, request);
     } else {
         //unexpected error n_bytes<0
+        perror("Unknown error in recv");
+        log_msg("EPOLL_CTL_DEL 2: " + std::to_string(ev->data.fd) + "\n");
         updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
         delete request;
         close(ev->data.fd);
@@ -182,9 +193,14 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     //ssize_t send(int s, const void* buf, size_t len, int flags);
     ssize_t n_bytes =
         send(ev->data.fd, response_str.c_str(), response_str.size(), 0);
-    if(n_bytes<0){
+    if (n_bytes < 0) {
+        log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
+        log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
+        perror("Error sending response");
         exit_with_msg("Error sending response");
     }
+
+    log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
     updateEpoll(epoll_fd, EPOLL_CTL_DEL, ev->data.fd, 0, nullptr);
     delete response;
     close(ev->data.fd);
@@ -200,12 +216,15 @@ void HttpServer::updateEpoll(int epoll_fd, int op, int fd,
             event.data.fd = fd;
             event.data.ptr = data;
             if (epoll_ctl(epoll_fd, op, fd, &event) < 0) {
+                perror("Error updating interest list");
                 throw std::runtime_error("Error updating epoll interest list");
             }
             break;
         case EPOLL_CTL_DEL:
             if (epoll_ctl(epoll_fd, op, fd, nullptr) < 0) {
-                throw std::runtime_error("Error updating epoll interest list");
+                perror("Error deleting fd from interest list");
+                throw std::runtime_error(
+                    "Error deleting fd from epoll interest list");
             }
     }
 }
@@ -238,6 +257,7 @@ void HttpServer::joinThreads() {
 }
 
 void HttpServer::stop() {
+    log_msg("Server Stop Called\n");
     m_is_running = false;
     closeSocket();
     closeEpoll();
