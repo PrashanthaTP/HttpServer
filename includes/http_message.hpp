@@ -1,10 +1,14 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 //Request and Response
 
 namespace SimpleHttpServer {
+
+const uint32_t g_max_buffer_size = 1024;
+
 enum class HttpMethod {
     HEAD,
     GET,
@@ -21,6 +25,13 @@ const std::unordered_map<std::string, HttpVersion> g_HttpVersionMap = {
     {"HTTP/1.1", HttpVersion::HTTP_1_1}};
 const std::unordered_map<std::string, HttpMethod> g_HttpMethodMap = {
     {"GET", HttpMethod::GET}};
+
+class EventData {
+    public:
+    int fd = -1;
+    uint32_t length = 0;
+    char buffer[g_max_buffer_size];
+};
 
 class Request {
    private:
