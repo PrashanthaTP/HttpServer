@@ -17,3 +17,17 @@
 -> [✅] Response Handling via objects
 -> [] Request Handling via objects
 -> [] Registering route handles
+
+
+## Planning
+HttpServer() -> CreateSocket
+|-> Start -> SetSocketOpt -> Bind -> Listen() -> SetupEpoll + CreateThreads
+|-> Thread Listener -> AcceptConnections -> accept -> Add to interest list of Epoll FD
+|-> Thread Worker -> EpollWait -> EPOLLIN -> recv -> Add to interest list
+                             | -> EPOLLOUT -> FormatResponse -> send
+
+# Benchmarking
+
+1. SW 1: Thread Per Client
+2. SW 2: Thread Pool + EPOLL, Level Triggered, Blocking Sockets
+3. SW 3: Thread Pool + EPOLL, Level Triggered, Non Blocking Sockets
