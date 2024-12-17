@@ -12,22 +12,47 @@ std::string Request::getHeader(std::string& key) const {
     return std::string();
 }
 
+HttpMethod Request::getHttpMethod() {
+    return m_http_method;
+}
+
+HttpVersion Request::getHttpVersion() {
+    return m_http_version;
+}
+
+std::string Request::getPath() {
+    return m_path;
+}
+
 void Request::parse() {
     std::istringstream request_stream{m_buffer};
     std::string http_method, path, http_version;
     request_stream >> http_method >> path >> http_version;
+    m_http_method = string_to_http_method(http_method);
+    m_http_version = string_to_http_version(http_version);
+    m_path = path;
+
     log_msg("Request :\n");
     log_msg("Method: ");
-    log_msg(http_method);
+    log_msg(to_string(m_http_method));
     log_msg("\n");
     log_msg("Path: ");
-    log_msg(path);
+    log_msg(m_path);
     log_msg("\n");
     log_msg("Version: ");
-    log_msg(http_version);
+    log_msg(to_string(m_http_version));
     log_msg("\n");
 }
 
+std::string to_string(HttpMethod http_method) {
+    switch (http_method) {
+        case HttpMethod::GET:
+            return "GET";
+        default:
+            //throw error?
+            return "";
+    }
+}
 std::string to_string(HttpVersion http_version) {
     switch (http_version) {
         case HttpVersion::HTTP_1_1:
@@ -37,6 +62,20 @@ std::string to_string(HttpVersion http_version) {
             return "";
     }
 }
+HttpMethod string_to_http_method(const std::string& http_method) {
+    if (g_HttpMethodMap.find(http_method) != g_HttpMethodMap.end()) {
+        return g_HttpMethodMap.at(http_method);
+    }
+    throw std::runtime_error("Invalid http method");
+}
+
+HttpVersion string_to_http_version(const std::string& http_version) {
+    if (g_HttpVersionMap.find(http_version) != g_HttpVersionMap.end()) {
+        return g_HttpVersionMap.at(http_version);
+    }
+    throw std::runtime_error("Invalid http version");
+}
+
 int to_int(HttpStatusCode status_code) {
     switch (status_code) {
         case HttpStatusCode::Ok:
@@ -60,7 +99,7 @@ void Response::parse() {
     std::ostringstream oss;
     oss << to_string(m_http_version) << " ";
     oss << to_int(m_status_code) << " ";
-    oss << g_HttpStatusMessageMap.at(to_int(m_status_code)) << "\r\n";
+    oss << g_HttpStatusMap.at(to_int(m_status_code)) << "\r\n";
     for (const auto& kv : m_header_umap) {
         oss << kv.first << ": " << kv.second << "\r\n";
     }
@@ -70,9 +109,11 @@ void Response::parse() {
     m_response_str = oss.str();
     //return m_response_str;
 }
+
 std::string Response::str() const {
     return m_response_str;
 }
+
 size_t Response::size() const {
     return m_response_str.size();
 }

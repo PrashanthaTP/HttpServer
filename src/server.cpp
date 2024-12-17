@@ -2,6 +2,8 @@
 #include <netdb.h>
 #include <sys/epoll.h>
 #include <unistd.h>  //close
+#include <algorithm>
+#include <cctype>
 #include <cstring>   //memset
 #include <iostream>  //cout
 #include <thread>
@@ -91,11 +93,11 @@ void HttpServer::setupThreads() {
 
 void HttpServer::acceptConnections() {
     log_msg("Inside acceptConnections\n");
-    log_msg("Value of m_is_running " + std::to_string(m_is_running));
+    log_msg("Value of m_is_running " + std::to_string(m_is_running) + "\n");
     struct sockaddr_storage client_addr;
     socklen_t client_addr_size = sizeof(client_addr);
     while (m_is_running) {
-        log_msg("Accepting connections\n");
+        //log_msg("Accepting connections\n");
         //TODO: non blocking sockets?
         //https://stackoverflow.com/questions/26269448/why-is-non-blocking-sockets-recommended-in-epoll
         int client_fd = accept4(m_server_fd, (struct sockaddr*)&client_addr,
@@ -116,7 +118,7 @@ void HttpServer::handleConnections(int worker_idx) {
     log_msg("Inside handleConnections\n");
     struct epoll_event ev_list[g_max_events];
     while (m_is_running) {
-        log_msg("Epoll wait..\n");
+        //log_msg("Epoll wait..\n");
         //https://stackoverflow.com/a/62967588/12988588
         int n_fds =
             epoll_wait(m_epoll_fds[worker_idx], ev_list, g_max_events, 0);
@@ -154,6 +156,7 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
     if (n_bytes > 0) {
         response = new EventData();
         response->fd = request->fd;
+        request->length = n_bytes;
         createResponse(request, response);
         updateEpoll(epoll_fd, EPOLL_CTL_MOD, request->fd, EPOLLOUT, response);
         delete request;
@@ -180,18 +183,10 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
 
 void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     EventData* response = static_cast<EventData*>(ev->data.ptr);
-    std::string body = "C++ is Cool";
-    std::string response_str =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: " +
-        std::to_string(body.size() + 2) +
-        "\r\n"
-        "\r\n" +
-        body + "\r\n";
+
     //ssize_t send(int s, const void* buf, size_t len, int flags);
     ssize_t n_bytes =
-        send(response->fd, response_str.c_str(), response_str.size(), 0);
+        send(response->fd, response->buffer, response->length, 0);
     if (n_bytes < 0) {
         log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
         log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
@@ -228,8 +223,48 @@ void HttpServer::updateEpoll(int epoll_fd, int op, int fd,
     }
 }
 
-void HttpServer::createResponse(const EventData* const request,
-                                EventData* response) {}
+void HttpServer::registerRouteHandler(std::string route, HttpMethod httpMethod,
+                                      RouteHandlerCallback_t callback) {
+    std::transform(route.begin(), route.end(), route.begin(),
+                   [](char c) -> char { return std::tolower(c); });
+    //m_route_handlers_map[route].emplace(httpMethod,callback);//doesn't overwrite
+    m_route_handlers_map[route][httpMethod] = callback;
+    for(const std::pair<HttpMethod,RouteHandlerCallback_t> &key : m_route_handlers_map[route]){
+        log_msg("Path: " + route);
+        log_msg("Key : " + to_string(key.first));
+    }
+}
+
+void HttpServer::createResponse(const EventData* const raw_request,
+                                EventData* raw_response) {
+    Request request{};
+
+    memcpy(request.m_buffer, raw_request->buffer, raw_request->length);
+    request.parse();
+
+    std::string path = request.getPath();
+    HttpMethod http_method = request.getHttpMethod();
+
+    if (m_route_handlers_map.find(path) == m_route_handlers_map.end()) {
+        throw std::runtime_error("Invalid Path: Path not registered");
+    }
+    if (m_route_handlers_map[path].find(http_method) ==
+        m_route_handlers_map[path].end()) {
+        throw std::runtime_error("Invalid Http Method: Method not registered");
+    }
+    log_msg("No issue with callback register\n");
+    
+    RouteHandlerCallback_t callback =
+        m_route_handlers_map.at(path).at(http_method);
+
+    Response response{};
+    callback(request, response);
+    //response now has been updated by the api user
+    //we need to get the raw response updated using 'Response' obj
+    size_t response_size = response.size();
+    raw_response->length = response_size;
+    memcpy(raw_response->buffer, response.str().c_str(), response_size);
+}
 
 void HttpServer::closeSocket() {
     if (m_server_fd < 0) {

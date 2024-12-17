@@ -25,6 +25,12 @@ const std::unordered_map<std::string, HttpVersion> g_HttpVersionMap = {
 const std::unordered_map<std::string, HttpMethod> g_HttpMethodMap = {
     {"GET", HttpMethod::GET}};
 
+std::string to_string(HttpMethod http_method);
+std::string to_string(HttpVersion http_version);
+HttpMethod string_to_http_method(const std::string& http_method);
+HttpVersion string_to_http_version(const std::string& http_version);
+int to_int(HttpStatusCode status_code);
+
 class EventData {
    public:
     int fd = -1;
@@ -42,10 +48,14 @@ class Request {
     ~Request() = default;
     std::string getHeader(std::string& key) const;
     void parse();
+    std::string getPath();
+    HttpMethod getHttpMethod();
+    HttpVersion getHttpVersion();
 
    private:
     HttpVersion m_http_version;
     HttpMethod m_http_method;
+    std::string m_path;
     std::unordered_map<std::string, std::string> m_headers_umap;
     std::string m_content_str;
 };  // class Request
@@ -58,6 +68,8 @@ class Response {
     void setContent(const std::string& t_content_str);
     void setHeader(const std::string& key, const std::string& val);
     void parse();
+    //TODO: should we parse automatically in the constructor itself? get buffer as an arg?
+
     std::string str() const;
     size_t size() const;
 
