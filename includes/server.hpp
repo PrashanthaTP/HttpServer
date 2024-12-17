@@ -27,8 +27,8 @@ class HttpServer {
     const std::string m_port_str;
     struct addrinfo* m_server_addrinfo_p;
 
-    bool m_is_running =
-        false;  //used in worker threads to check if we can still accept new connections
+    //used in worker threads to check if we can still accept new connections
+    bool m_is_running = false;
     // bool m_is_stopped = false;//used in destructor call
 
     int m_epoll_fds[g_thread_poolsize];

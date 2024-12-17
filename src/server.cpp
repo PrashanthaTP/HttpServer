@@ -39,16 +39,15 @@ void HttpServer::createSocket() {
     if (stat != 0) {
         exit_with_msg("Error during getting address");
     }
-    m_server_fd =
-        socket(m_server_addrinfo_p->ai_family, m_server_addrinfo_p->ai_socktype | SOCK_NONBLOCK,
-               m_server_addrinfo_p->ai_protocol);
+    m_server_fd = socket(m_server_addrinfo_p->ai_family,
+                         m_server_addrinfo_p->ai_socktype | SOCK_NONBLOCK,
+                         m_server_addrinfo_p->ai_protocol);
     if (m_server_fd == -1) {
         exit_with_msg("Error during socket creation");
     }
 }
 
 void HttpServer::start() {
-
     int sockopt = 1;
     setsockopt(m_server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &sockopt,
                sizeof(sockopt));
@@ -100,7 +99,7 @@ void HttpServer::acceptConnections() {
         //TODO: non blocking sockets?
         //https://stackoverflow.com/questions/26269448/why-is-non-blocking-sockets-recommended-in-epoll
         int client_fd = accept4(m_server_fd, (struct sockaddr*)&client_addr,
-                                &client_addr_size,SOCK_NONBLOCK);
+                                &client_addr_size, SOCK_NONBLOCK);
         if (client_fd < 0) {
             continue;
         }
@@ -134,8 +133,8 @@ void HttpServer::handleConnections(int worker_idx) {
                 static_cast<EventData*>(curr_ev->data.ptr);
             if (curr_ev->events & EPOLLERR || curr_ev->events & EPOLLHUP) {
                 //TODO: Should this block be moved to seperate function?
-                updateEpoll(m_epoll_fds[worker_idx], EPOLL_CTL_DEL,
-                            ev_data->fd, 0, nullptr);
+                updateEpoll(m_epoll_fds[worker_idx], EPOLL_CTL_DEL, ev_data->fd,
+                            0, nullptr);
                 delete ev_data;
                 close(ev_data->fd);
             } else if (curr_ev->events & EPOLLIN) {
@@ -240,6 +239,7 @@ void HttpServer::closeSocket() {
         close(m_server_fd);
     }
 }
+
 void HttpServer::closeEpoll() {
     for (int i = 0; i < g_thread_poolsize; i++) {
         if (m_epoll_fds[i] < 0) {

@@ -19,15 +19,14 @@ enum class HttpMethod {
 enum class HttpVersion { HTTP_1_1 = 11 };
 
 enum class HttpStatusCode { Ok = 200 };
-const std::unordered_map<int, std::string> g_HttpStatusMessageMap = {
-    {200, "Ok"}};
+const std::unordered_map<int, std::string> g_HttpStatusMap = {{200, "Ok"}};
 const std::unordered_map<std::string, HttpVersion> g_HttpVersionMap = {
     {"HTTP/1.1", HttpVersion::HTTP_1_1}};
 const std::unordered_map<std::string, HttpMethod> g_HttpMethodMap = {
     {"GET", HttpMethod::GET}};
 
 class EventData {
-    public:
+   public:
     int fd = -1;
     uint32_t length = 0;
     char buffer[g_max_buffer_size];
