@@ -13,7 +13,12 @@
 using std::mutex;
 using std::thread;
 
+using SimpleHttpServer::HttpMethod;
 using SimpleHttpServer::HttpServer;
+using SimpleHttpServer::HttpStatusCode;
+using SimpleHttpServer::Request;
+using SimpleHttpServer::Response;
+using SimpleHttpServer::RouteHandlerCallback_t;
 
 #define PORT_STR "8080"
 #define ERR_SOCKET_CREATE 0
@@ -150,11 +155,33 @@ void sendFile(int conn_fd, FILE* file) {
     delete[] file_content;
 }
 
+void registerRouteHandlers(HttpServer& server) {
+    RouteHandlerCallback_t rootHandler = [](const Request& request,
+                                            Response response) {
+        std::string body = "C++ is Cool";
+        std::string response_str =
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: text/plain\r\n"
+            "Content-Length: " +
+            std::to_string(body.size() + 2) +
+            "\r\n"
+            "\r\n" +
+            body + "\r\n";
+        response.setStatusCode(HttpStatusCode::Ok);
+        response.setHeader("Content-Type", "text/html");
+        response.setContent(body);
+        response.parse();
+    };
+
+    server.registerRouteHandler("/", HttpMethod::GET, rootHandler);
+}
+
 int main() {
     HttpServer server("8080");
+    registerRouteHandlers(server);
     try {
         server.start();
-        std::cout << "Enter [quit] to stop the server" << std::endl;
+        std::cout << "Enter [quit] to stop the server\n";
         std::string command;
         std::cin >> command;
         while (command != "quit") {
