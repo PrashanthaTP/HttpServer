@@ -8,7 +8,7 @@
 
 namespace SimpleHttpServer {
 using RouteHandlerCallback_t = void (*)(const Request& request,
-                                        Response response);
+                                        Response& response);
 const uint16_t g_thread_poolsize = 5;
 const uint16_t g_max_backlog = 3;
 const uint16_t g_max_connections = 10000;

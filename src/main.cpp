@@ -157,7 +157,7 @@ void sendFile(int conn_fd, FILE* file) {
 
 void registerRouteHandlers(HttpServer& server) {
     RouteHandlerCallback_t rootHandler = [](const Request& request,
-                                            Response response) {
+                                            Response& response) {
         std::string body = "C++ is Cool";
         std::string response_str =
             "HTTP/1.1 200 OK\r\n"
