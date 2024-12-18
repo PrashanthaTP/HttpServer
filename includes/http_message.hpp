@@ -18,8 +18,28 @@ enum class HttpMethod {
 
 enum class HttpVersion { HTTP_1_1 = 11 };
 
-enum class HttpStatusCode { Ok = 200 };
-const std::unordered_map<int, std::string> g_HttpStatusMap = {{200, "Ok"}};
+enum class HttpStatusCode {
+    Ok = 200,
+    BadRequest = 400,
+    NotFound = 404,
+    MethodNotAllowed = 405,
+    RequestTimeout = 408,
+    InternalServerError = 500,
+    NotImplemented = 501,
+    ServiceUnavailable = 503,
+    HttpVersionNotSupported = 505
+};
+const std::unordered_map<int, std::string> g_HttpStatusMap = {
+    {200, "Ok"},
+    {400, "BadRequest"},
+    {404, "NotFound"},
+    {405, "MethodNotAllowed"},
+    {408, "RequestTimeout"},
+    {500, "InternalServerError"},
+    {501, "NotImplemented"},
+    {503, "ServiceUnavailable"},
+    {505, "HttpVersionNotSupported"}};
+
 const std::unordered_map<std::string, HttpVersion> g_HttpVersionMap = {
     {"HTTP/1.1", HttpVersion::HTTP_1_1}};
 const std::unordered_map<std::string, HttpMethod> g_HttpMethodMap = {

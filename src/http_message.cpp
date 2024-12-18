@@ -32,6 +32,7 @@ void Request::parse() {
     m_http_version = string_to_http_version(http_version);
     m_path = path;
 
+    log_msg("===========================\n");
     log_msg("Request :\n");
     log_msg("Method: ");
     log_msg(to_string(m_http_method));
@@ -42,6 +43,7 @@ void Request::parse() {
     log_msg("Version: ");
     log_msg(to_string(m_http_version));
     log_msg("\n");
+    log_msg("===========================\n");
 }
 
 std::string to_string(HttpMethod http_method) {
@@ -66,20 +68,36 @@ HttpMethod string_to_http_method(const std::string& http_method) {
     if (g_HttpMethodMap.find(http_method) != g_HttpMethodMap.end()) {
         return g_HttpMethodMap.at(http_method);
     }
-    throw std::runtime_error("Invalid http method");
+    throw std::invalid_argument("Http Method ( " + http_method + " ) Not Supported");
 }
 
 HttpVersion string_to_http_version(const std::string& http_version) {
     if (g_HttpVersionMap.find(http_version) != g_HttpVersionMap.end()) {
         return g_HttpVersionMap.at(http_version);
     }
-    throw std::runtime_error("Invalid http version");
+    throw std::logic_error("Http Version ( " + http_version + " ) Not Supported");
 }
 
 int to_int(HttpStatusCode status_code) {
     switch (status_code) {
         case HttpStatusCode::Ok:
             return 200;
+        case HttpStatusCode::BadRequest:
+            return 400;
+        case HttpStatusCode::NotFound:
+            return 404;
+        case HttpStatusCode::MethodNotAllowed:
+            return 405;
+        case HttpStatusCode::RequestTimeout:
+            return 408;
+        case HttpStatusCode::InternalServerError:
+            return 500;
+        case HttpStatusCode::NotImplemented:
+            return 501;
+        case HttpStatusCode::ServiceUnavailable:
+            return 503;
+        case HttpStatusCode::HttpVersionNotSupported:
+            return 505;
         default:
             //throw error?
             return 0;

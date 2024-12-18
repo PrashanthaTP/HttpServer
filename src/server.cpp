@@ -185,8 +185,7 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     EventData* response = static_cast<EventData*>(ev->data.ptr);
 
     //ssize_t send(int s, const void* buf, size_t len, int flags);
-    ssize_t n_bytes =
-        send(response->fd, response->buffer, response->length, 0);
+    ssize_t n_bytes = send(response->fd, response->buffer, response->length, 0);
     if (n_bytes < 0) {
         log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
         log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
@@ -229,38 +228,61 @@ void HttpServer::registerRouteHandler(std::string route, HttpMethod httpMethod,
                    [](char c) -> char { return std::tolower(c); });
     //m_route_handlers_map[route].emplace(httpMethod,callback);//doesn't overwrite
     m_route_handlers_map[route][httpMethod] = callback;
-    for(const std::pair<HttpMethod,RouteHandlerCallback_t> &key : m_route_handlers_map[route]){
-        log_msg("Path: " + route);
-        log_msg("Key : " + to_string(key.first));
-    }
+    // for(const std::pair<HttpMethod,RouteHandlerCallback_t> &key : m_route_handlers_map[route]){
+    //     log_msg("Path: " + route);
+    //     log_msg("Key : " + to_string(key.first));
+    // }
 }
 
 void HttpServer::createResponse(const EventData* const raw_request,
                                 EventData* raw_response) {
     Request request{};
-
-    memcpy(request.m_buffer, raw_request->buffer, raw_request->length);
-    request.parse();
-
-    std::string path = request.getPath();
-    HttpMethod http_method = request.getHttpMethod();
-
-    if (m_route_handlers_map.find(path) == m_route_handlers_map.end()) {
-        throw std::runtime_error("Invalid Path: Path not registered");
-    }
-    if (m_route_handlers_map[path].find(http_method) ==
-        m_route_handlers_map[path].end()) {
-        throw std::runtime_error("Invalid Http Method: Method not registered");
-    }
-    log_msg("No issue with callback register\n");
-    
-    RouteHandlerCallback_t callback =
-        m_route_handlers_map.at(path).at(http_method);
-
     Response response{};
-    callback(request, response);
+    try {
+
+        //Populate request object
+        memcpy(request.m_buffer, raw_request->buffer, raw_request->length);
+        request.parse();
+        // Get the user callback for route handling
+        std::string path = request.getPath();
+        HttpMethod http_method = request.getHttpMethod();
+
+        if (m_route_handlers_map.find(path) == m_route_handlers_map.end()) {
+            throw std::domain_error("Resource not found");
+        }
+
+        if (m_route_handlers_map.at(path).find(http_method) ==
+            m_route_handlers_map.at(path).end()) {
+            throw std::invalid_argument("Method not supported");
+        }
+
+        log_msg("No issue with callback register\n");
+
+        RouteHandlerCallback_t callback =
+            m_route_handlers_map.at(path).at(http_method);
+        //Populate response object using route handler callback
+        // Response response{};
+        callback(request, response);
+    } catch (const std::invalid_argument& e) {
+        // Response response{};
+        response.setStatusCode(HttpStatusCode::MethodNotAllowed);
+        response.setContent(e.what());
+        response.parse();
+    } catch (const std::domain_error& e) {
+        response.setStatusCode(HttpStatusCode::NotFound);
+        response.setContent(e.what());
+        response.parse();
+    } catch (const std::logic_error& e) {
+        response.setStatusCode(HttpStatusCode::HttpVersionNotSupported);
+        response.setContent(e.what());
+        response.parse();
+    } catch (const std::exception& e) {
+        response.setStatusCode(HttpStatusCode::InternalServerError);
+        response.setContent(e.what());
+        response.parse();
+    }
     //response now has been updated by the api user
-    //we need to get the raw response updated using 'Response' obj
+    //now we need to get the raw response updated using 'Response' obj
     size_t response_size = response.size();
     raw_response->length = response_size;
     memcpy(raw_response->buffer, response.str().c_str(), response_size);
