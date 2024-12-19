@@ -62,5 +62,9 @@ class HttpServer {
 
     void setupThreads();
     void joinThreads();
+
+    //should thest two be merged
+    static int getMaxReadBytesPossible(int read_fd);
+    static int getMaxSendBytesPossible(int send_fd);
 };
 }  // namespace SimpleHttpServer

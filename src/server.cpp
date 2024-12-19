@@ -153,6 +153,10 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
     EventData* response;
     //ssize_t recv(int s, void *buf, size_t len, int flags);
     ssize_t n_bytes = recv(request->fd, request->buffer, g_max_buffer_size, 0);
+
+    // cout << "Max bytes that can be read : "
+    //      << getMaxSendBytesPossible(request->fd) << " bytes.\n";
+
     if (n_bytes > 0) {
         response = new EventData();
         response->fd = request->fd;
@@ -187,6 +191,8 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     //ssize_t send(int s, const void* buf, size_t len, int flags);
     ssize_t n_bytes = send(response->fd, response->buffer,
                            response->length - response->cursor, 0);
+    // cout << "Max bytes that can be sent : "
+    //      << getMaxSendBytesPossible(response->fd) << " bytes.\n";
 
     if (n_bytes == response->length) {
         //successfully sent all data
@@ -276,7 +282,7 @@ void HttpServer::createResponse(const EventData* const raw_request,
         //Populate response object using route handler callback
         // Response response{};
         callback(request, response);
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::invalid_argument& e) {  //Todo: Use custom exceptions?
         // Response response{};
         response.setStatusCode(HttpStatusCode::MethodNotAllowed);
         response.setContent(e.what());
@@ -332,6 +338,19 @@ void HttpServer::stop() {
     closeSocket();
     closeEpoll();
     joinThreads();
+}
+
+int HttpServer::getMaxReadBytesPossible(int read_fd) {
+    int optVal;
+    socklen_t optLen;
+    int ret = getsockopt(read_fd, SOL_SOCKET, SO_SNDBUF, &optVal, &optLen);
+    return ret == 0 ? optVal : ret;
+}
+int HttpServer::getMaxSendBytesPossible(int send_fd) {
+    int optVal;
+    socklen_t optLen;
+    int ret = getsockopt(send_fd, SOL_SOCKET, SO_RCVBUF, &optVal, &optLen);
+    return ret == 0 ? optVal : ret;
 }
 
 }  // namespace SimpleHttpServer

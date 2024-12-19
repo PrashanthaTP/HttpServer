@@ -12,6 +12,9 @@
 - Related 
   1. [Section Level-triggered and edge-triggered in man7/epoll](https://man7.org/linux/man-pages/man7/epoll.7.html)
   2. [Blocking I/O, Nonblocking I/O, And Epoll](https://eklitzke.org/blocking-io-nonblocking-io-and-epoll)
+- Max bytes that socket can handle
+  [Stackoverflow: Maximum buffer length for sendto?](https://stackoverflow.com/a/25976/12988588)
+
 ## Cpp
 
 + [Modern C++ Features](https://github.com/AnthonyCalandra/modern-cpp-features?)
