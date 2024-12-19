@@ -6,14 +6,14 @@
 ## Build
 
 ```bash
-g++ -o build/server server.cpp
+./build.sh
 ```
 
 ## Run
 
 To run Server
 ```bash
-./build/server
+./build/HttpServer
 ```
 
 To connect to server
