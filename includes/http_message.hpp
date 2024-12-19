@@ -54,7 +54,8 @@ int to_int(HttpStatusCode status_code);
 class EventData {
    public:
     int fd = -1;
-    uint32_t length = 0;
+    int length = 0;
+    int cursor = 0;
     char buffer[g_max_buffer_size];
 };
 

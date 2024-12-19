@@ -185,19 +185,31 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     EventData* response = static_cast<EventData*>(ev->data.ptr);
 
     //ssize_t send(int s, const void* buf, size_t len, int flags);
-    ssize_t n_bytes = send(response->fd, response->buffer, response->length, 0);
-    if (n_bytes < 0) {
-        // log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
-        // log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
-        // perror("Error sending response");
-        throw std::runtime_error("Error sending response");
-        //causes memory leak :? -> who releases memory held by ev->data.ptr?
-    }
+    ssize_t n_bytes = send(response->fd, response->buffer,
+                           response->length - response->cursor, 0);
 
-    // log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
-    updateEpoll(epoll_fd, EPOLL_CTL_DEL, response->fd, 0, nullptr);
-    close(response->fd);
-    delete response;
+    if (n_bytes == response->length) {
+        //successfully sent all data
+        //check if client sends some more requests
+        struct EventData* request = new EventData();
+        request->fd = response->fd;
+        updateEpoll(epoll_fd, EPOLL_CTL_MOD, response->fd, EPOLLIN, request);
+        delete response;
+    } else if (n_bytes > 0) {
+        //send remaining data
+        response->cursor += n_bytes;
+        updateEpoll(epoll_fd, EPOLL_CTL_MOD, response->fd, EPOLLOUT,
+                    response);  //is this really required?
+    } else if (errno == EAGAIN || EWOULDBLOCK) {
+        //retry
+        updateEpoll(epoll_fd, EPOLL_CTL_MOD, response->fd, EPOLLOUT,
+                    response);  //is this really required?
+    } else {
+        //unknown error
+        updateEpoll(epoll_fd, EPOLL_CTL_DEL, response->fd, 0, nullptr);
+        close(response->fd);
+        delete response;
+    }
 }
 
 void HttpServer::updateEpoll(int epoll_fd, int op, int fd,
