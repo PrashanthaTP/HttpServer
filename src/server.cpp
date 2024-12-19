@@ -79,7 +79,7 @@ void HttpServer::setupEpoll() {
             exit_with_msg("Error creating epoll fd");
         }
     }
-    log_msg("Setup Epoll FDs successfully\n");
+    // log_msg("Setup Epoll FDs successfully\n");
 }
 
 void HttpServer::setupThreads() {
@@ -88,12 +88,12 @@ void HttpServer::setupThreads() {
         m_worker_threads[i] =
             std::thread(&HttpServer::handleConnections, this, i);
     }
-    log_msg("Threads started successfully\n");
+    // log_msg("Threads started successfully\n");
 }
 
 void HttpServer::acceptConnections() {
-    log_msg("Inside acceptConnections\n");
-    log_msg("Value of m_is_running " + std::to_string(m_is_running) + "\n");
+    // log_msg("Inside acceptConnections\n");
+    // log_msg("Value of m_is_running " + std::to_string(m_is_running) + "\n");
     struct sockaddr_storage client_addr;
     socklen_t client_addr_size = sizeof(client_addr);
     while (m_is_running) {
@@ -115,7 +115,7 @@ void HttpServer::acceptConnections() {
 }
 
 void HttpServer::handleConnections(int worker_idx) {
-    log_msg("Inside handleConnections\n");
+    //log_msg("Inside handleConnections\n");
     struct epoll_event ev_list[g_max_events];
     while (m_is_running) {
         //log_msg("Epoll wait..\n");
@@ -162,7 +162,7 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
         delete request;
     } else if (n_bytes == 0) {
         //client closed the connection
-        log_msg("EPOLL_CTL_DEL 1: " + std::to_string(ev->data.fd) + "\n");
+        // log_msg("EPOLL_CTL_DEL 1: " + std::to_string(ev->data.fd) + "\n");
         updateEpoll(epoll_fd, EPOLL_CTL_DEL, request->fd, 0, nullptr);
         close(request->fd);
         delete request;
@@ -173,8 +173,8 @@ void HttpServer::handleEpollIn(int epoll_fd, struct epoll_event* ev) {
         updateEpoll(epoll_fd, EPOLL_CTL_MOD, request->fd, EPOLLIN, request);
     } else {
         //unexpected error n_bytes<0
-        perror("Unknown error in recv");
-        log_msg("EPOLL_CTL_DEL 2: " + std::to_string(ev->data.fd) + "\n");
+        // perror("Unknown error in recv");
+        // log_msg("EPOLL_CTL_DEL 2: " + std::to_string(ev->data.fd) + "\n");
         updateEpoll(epoll_fd, EPOLL_CTL_DEL, request->fd, 0, nullptr);
         close(request->fd);
         delete request;
@@ -187,13 +187,13 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
     //ssize_t send(int s, const void* buf, size_t len, int flags);
     ssize_t n_bytes = send(response->fd, response->buffer, response->length, 0);
     if (n_bytes < 0) {
-        log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
-        log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
-        perror("Error sending response");
+        // log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
+        // log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
+        // perror("Error sending response");
         exit_with_msg("Error sending response");
     }
 
-    log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
+    // log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
     updateEpoll(epoll_fd, EPOLL_CTL_DEL, response->fd, 0, nullptr);
     close(response->fd);
     delete response;
@@ -256,7 +256,7 @@ void HttpServer::createResponse(const EventData* const raw_request,
             throw std::invalid_argument("Method not supported");
         }
 
-        log_msg("No issue with callback register\n");
+        // log_msg("No issue with callback register\n");
 
         RouteHandlerCallback_t callback =
             m_route_handlers_map.at(path).at(http_method);
@@ -314,7 +314,7 @@ void HttpServer::joinThreads() {
 }
 
 void HttpServer::stop() {
-    log_msg("Server Stop Called\n");
+    // log_msg("Server Stop Called\n");
     m_is_running = false;
     closeSocket();
     closeEpoll();

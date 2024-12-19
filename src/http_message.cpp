@@ -32,18 +32,18 @@ void Request::parse() {
     m_http_version = string_to_http_version(http_version);
     m_path = path;
 
-    log_msg("===========================\n");
-    log_msg("Request :\n");
-    log_msg("Method: ");
-    log_msg(to_string(m_http_method));
-    log_msg("\n");
-    log_msg("Path: ");
-    log_msg(m_path);
-    log_msg("\n");
-    log_msg("Version: ");
-    log_msg(to_string(m_http_version));
-    log_msg("\n");
-    log_msg("===========================\n");
+    // log_msg("===========================\n");
+    // log_msg("Request :\n");
+    // log_msg("Method: ");
+    // log_msg(to_string(m_http_method));
+    // log_msg("\n");
+    // log_msg("Path: ");
+    // log_msg(m_path);
+    // log_msg("\n");
+    // log_msg("Version: ");
+    // log_msg(to_string(m_http_version));
+    // log_msg("\n");
+    // log_msg("===========================\n");
 }
 
 std::string to_string(HttpMethod http_method) {
