@@ -39,13 +39,13 @@ void HttpServer::createSocket() {
     int stat =
         getaddrinfo(NULL, m_port_str.c_str(), &hints, &m_server_addrinfo_p);
     if (stat != 0) {
-        exit_with_msg("Error during getting address");
+        throw std::runtime_error("Error during getting server address info");
     }
     m_server_fd = socket(m_server_addrinfo_p->ai_family,
                          m_server_addrinfo_p->ai_socktype | SOCK_NONBLOCK,
                          m_server_addrinfo_p->ai_protocol);
     if (m_server_fd == -1) {
-        exit_with_msg("Error during socket creation");
+        throw std::runtime_error("Error during server socket creation");
     }
 }
 
@@ -56,15 +56,15 @@ void HttpServer::start() {
 
     if (bind(m_server_fd, m_server_addrinfo_p->ai_addr,
              m_server_addrinfo_p->ai_addrlen) < 0) {
-        exit_with_msg("Error during binding socket");
+        throw std::runtime_error("Error during binding server socket");
     }
     //print_m_server_addrinfo_p(m_server_addrinfo_p);
     freeaddrinfo(m_server_addrinfo_p);  //should this be moved to destructor
 
     if (listen(m_server_fd, g_max_backlog) < 0) {
-        exit_with_msg("Error during listening");
+        throw std::runtime_error("Error during listening");
     } else {
-        cout << "Server started listening..\n";
+        cout << "Server started listening on port " << m_port_str << "\n";
     }
     // acceptConnections();
     m_is_running = true;
@@ -76,7 +76,7 @@ void HttpServer::setupEpoll() {
     for (int i = 0; i < g_thread_poolsize; i++) {
         m_epoll_fds[i] = epoll_create1(0);
         if (m_epoll_fds[i] < 0) {
-            exit_with_msg("Error creating epoll fd");
+            throw std::runtime_error("Error creating epoll fd");
         }
     }
     // log_msg("Setup Epoll FDs successfully\n");
@@ -190,7 +190,8 @@ void HttpServer::handleEpollOut(int epoll_fd, struct epoll_event* ev) {
         // log_msg("fd from ev.data: " + std::to_string(ev->data.fd) + "\n");
         // log_msg("fd from ev.data.ptr: " + std::to_string(response->fd) + "\n");
         // perror("Error sending response");
-        exit_with_msg("Error sending response");
+        throw std::runtime_error("Error sending response");
+        //causes memory leak :? -> who releases memory held by ev->data.ptr?
     }
 
     // log_msg("EPOLL_CTL_DEL 3: " + std::to_string(ev->data.fd) + "\n");
