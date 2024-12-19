@@ -9,15 +9,17 @@
 
 ## Refactoring
 
--> Consistent naming : snake_case?/ camelCase? / cCamelCase?
-
-
-## Low level
+-> [ ] Consistent naming : snake_case?/ camelCase? / cCamelCase?
+-> [ ] Remove log statements
+-> [ ] Proper exception handling -> Custom Exceptions to avoid ambiguity
 
 -> [✅] Response Handling via objects
--> [] Request Handling via objects
--> [] Registering route handles
+-> [✅] Request Handling via objects
+-> [✅] Registering route handles
 
+-> [ ] Issue #9: Resend if previous 'send' didn't send all the bytes
+-> [ ] Cmake
+-> [ ] Benchmarking
 
 ## Planning
 HttpServer() -> CreateSocket
