@@ -9,24 +9,31 @@
 
 ## Refactoring
 
--> [ ] Consistent naming : snake_case?/ camelCase? / cCamelCase?
--> [ ] Remove log statements
--> [ ] Proper exception handling -> Custom Exceptions to avoid ambiguity
+- [ ] Consistent naming : snake_case?/ camelCase? / cCamelCase?
+- [ ] Remove log statements
+- [ ] Proper exception handling -> Custom Exceptions to avoid ambiguity
+- [ ] Use Smart Pointers
+- [ ] Use of std::move
 
--> [✅] Response Handling via objects
--> [✅] Request Handling via objects
--> [✅] Registering route handles
-
--> [ ] Issue #9: Resend if previous 'send' didn't send all the bytes
--> [ ] Cmake
--> [ ] Benchmarking
+- [✅] Response Handling via objects
+- [✅] Request Handling via objects
+- [✅] Registering route handles
+- [✅] Issue #9: Resend if previous 'send' didn't send all the bytes
+- [✅] Cmake
+- [ ] Benchmarking
+- [ ] Python Client for Testing
 
 ## Planning
+```bash
 HttpServer() -> CreateSocket
 |-> Start -> SetSocketOpt -> Bind -> Listen() -> SetupEpoll + CreateThreads
+
 |-> Thread Listener -> AcceptConnections -> accept -> Add to interest list of Epoll FD
+
 |-> Thread Worker -> EpollWait -> EPOLLIN -> recv -> Add to interest list
+
                              | -> EPOLLOUT -> FormatResponse -> send
+```
 
 # Benchmarking
 
