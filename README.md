@@ -1,7 +1,10 @@
+<!-- ![Http Server in C++](./docs/images/banner_http_server_2.png) -->
+
+<p align="center">
+<img src="./docs/images/banner_http_server_5.png" alt="http server banner image"/>
+</p>
+
 # Http Server in C++
-
-> Network Programming
-
 
 ## Build
 
