@@ -23,6 +23,8 @@
   - [Placement new:  new(&x)A();](https://stackoverflow.com/a/56896234/12988588)
   - [Object Slicing Mentioned here - Stackoverflow - how-to-throw-a-c-exception ](https://stackoverflow.com/a/52402941)
 + [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-conventional)
++ [Exception Handling in C++ (https://learn.microsoft.com/en-us/cpp)](https://learn.microsoft.com/en-us/cpp/cpp/exception-handling-in-visual-cpp?view=msvc-170)
++ [More C++ Idioms/Polymorphic Exception (https://en.wikibooks.org)](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception#:~:text=Polymorphic%20exception%20idiom%20simply%20delegates,a%20virtual%20function%20raise())
 
 ##  Multithreading
 
