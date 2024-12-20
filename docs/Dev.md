@@ -14,6 +14,7 @@
   2. [Blocking I/O, Nonblocking I/O, And Epoll](https://eklitzke.org/blocking-io-nonblocking-io-and-epoll)
 - Max bytes that socket can handle
   [Stackoverflow: Maximum buffer length for sendto?](https://stackoverflow.com/a/25976/12988588)
+- [The Method to Epoll's Madness](https://copyconstruct.medium.com/the-method-to-epolls-madness-d9d2d6378642)
 
 ## Cpp
 
@@ -25,6 +26,7 @@
 + [Cpp Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-conventional)
 + [Exception Handling in C++ (https://learn.microsoft.com/en-us/cpp)](https://learn.microsoft.com/en-us/cpp/cpp/exception-handling-in-visual-cpp?view=msvc-170)
 + [More C++ Idioms/Polymorphic Exception (https://en.wikibooks.org)](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Polymorphic_Exception#:~:text=Polymorphic%20exception%20idiom%20simply%20delegates,a%20virtual%20function%20raise())
++ [Algebraic DataTypes (https://livebook.manning.com/book)](https://livebook.manning.com/book/functional-programming-in-c-plus-plus/chapter-9/15)
 
 ##  Multithreading
 
@@ -51,3 +53,15 @@
 ## Web Servers
 
 + [c10k Problem](http://www.kegel.com/c10k.html#strategies)
+
+
+## Python
+
++ [Python GIL (https://realpython.com)](https://realpython.com/python-gil/)
++ [Breaking Down Python Concurrency: The Global Interpreter Lock(GIL) and Its Effect on Multi-threading (medium.com)](https://rapidfork.medium.com/breaking-down-python-concurrency-the-gil-and-its-effect-on-multi-threading-b5ab99083cb2#:~:text=The%20GIL%20is%20a%20mechanism,the%20risk%20of%20corrupting%20data.)
+
+### Threads vs Async
+
++ [Python: what are the advantages of async over threads? (stackoverflow.com)](https://stackoverflow.com/questions/48020593/python-what-are-the-advantages-of-async-over-threads)
++ [Unyielding: Be as the reed, not the oak tree. Green threads are just threads (glyph.twistedmatrix.com)](https://glyph.twistedmatrix.com/2014/02/unyielding.html)
++ [Threads beat async await (lucumr.pocoo.org)](https://lucumr.pocoo.org/2024/11/18/threads-beat-async-await/)
