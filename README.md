@@ -146,7 +146,15 @@ $ ./ali --version
 version=0.7.5, commit=c0aa677, buildDate=2021-11-09T14:53:08Z, os=linux, arch=386
 ```
 
+```bash
+./ali --duration=60s --rate=1000 http://127.0.0.1:8080/
+```
+
 ![ali_rate_1000_duration_1min](./benchmark/screenshots/ali_rate_1000_duration_1min.PNG)
+
+```bash
+./ali --duration=60s --rate=5000 http://127.0.0.1:8080/
+```
 
 ![ali_rate_5000_duration_1min](./benchmark/screenshots/ali_rate_5000_duration_1min.PNG)
 
