@@ -125,7 +125,6 @@ void Response::parse() {
     oss << "\r\n";
     oss << m_content_str;
     m_response_str = oss.str();
-    //return m_response_str;
 }
 
 std::string Response::str() const {

@@ -15,7 +15,7 @@
 using std::cout;
 
 namespace SimpleHttpServer {
-//TODO: replace cout and exist_with_msg with something different
+
 HttpServer::HttpServer(const std::string& t_port_str) : m_port_str(t_port_str) {
     createSocket();
 }
@@ -58,7 +58,7 @@ void HttpServer::start() {
              m_server_addrinfo_p->ai_addrlen) < 0) {
         throw std::runtime_error("Error during binding server socket");
     }
-    //print_m_server_addrinfo_p(m_server_addrinfo_p);
+
     freeaddrinfo(m_server_addrinfo_p);  //should this be moved to destructor
 
     if (listen(m_server_fd, g_max_backlog) < 0) {
@@ -66,7 +66,7 @@ void HttpServer::start() {
     } else {
         cout << "Server started listening on port " << m_port_str << "\n";
     }
-    // acceptConnections();
+
     m_is_running = true;
     setupEpoll();
     setupThreads();

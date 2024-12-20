@@ -3,6 +3,7 @@
 
 using std::cout;
 using std::string;
+
 void exit_with_msg(const string& t_msg) {
     perror(t_msg.c_str());
     //exit(EXIT_FAILURE);
