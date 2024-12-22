@@ -4,7 +4,12 @@
 <img src="./docs/images/banner_http_server_5.png" alt="http server banner image"/>
 </p>
 
-# Http Server in C++
+# Http Server
+
+>
+> A multithreaded, epoll-driven, object-oriented HTTP server implemented in C++
+>
+
 
 ## Build
 
