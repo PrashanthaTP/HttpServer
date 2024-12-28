@@ -10,6 +10,8 @@
 > A multithreaded, epoll-driven, object-oriented HTTP server implemented in C++
 >
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Language](https://img.shields.io/badge/language-C%2B%2B-blue.svg)
 
 ## Build
 
